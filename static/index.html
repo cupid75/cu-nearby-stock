@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#7130a3">
+  <title>CU 근처 재고 찾기</title>
+  <link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script>
+</head>
+<body>
+<main>
+  <header><span class="brand">CU <span>근처 재고</span></span><span class="beta">시험 운영</span></header>
+  <section class="intro"><h1>가까운 CU 재고 찾기</h1><p>위치와 상품을 선택하고<br class="mobile-break"> 주변 매장의 재고를 확인하세요.</p></section>
+  <section id="location-section" class="panel" aria-labelledby="location-title">
+    <h2 id="location-title"><span class="step">1</span> 어디에서 찾을까요?</h2>
+    <button id="gps" type="button">내 위치 한 번 확인하기</button>
+    <p id="location-label" class="location">아직 위치를 선택하지 않았어요.</p>
+    <p id="location-message" class="hint" role="status" aria-live="polite" hidden></p>
+    <details id="location-details"><summary>동네·역 이름으로 위치 선택</summary>
+      <form id="place-form" class="search-row"><label class="sr-only" for="place-input">동네 또는 역</label><input id="place-input" placeholder="예: 성수동, 강남역" maxlength="60" enterkeyhint="search"><button type="submit">찾기</button></form>
+      <p id="place-message" class="hint" role="status"></p><ul id="places" class="choices"></ul>
+    </details>
+    <p class="hint">위치는 버튼을 누를 때만 확인해요. 지속 추적하지 않아요.</p>
+  </section>
+  <section class="panel" aria-labelledby="product-title">
+    <h2 id="product-title"><span class="step">2</span> 어떤 상품을 찾나요?</h2>
+    <label class="field-label" for="product-input">상품명</label>
+    <form id="product-form" class="search-row"><input id="product-input" placeholder="찾고 싶은 상품명을 입력하세요" maxlength="60" required enterkeyhint="search"><button type="submit">검색</button></form>
+    <div class="quick-group"><p>맛피아 <span>빠른 검색</span></p><div id="quick-mat" class="chips"></div></div>
+    <div class="quick-group"><p>리센느 <span>빠른 검색</span></p><div id="quick-res" class="chips"></div></div>
+    <p id="product-message" class="hint" role="status">빠른 검색도 결과에서 정확한 상품을 선택해 주세요.</p>
+    <ul id="products" class="choices"></ul>
+    <div id="selection" class="selected" hidden></div>
+  </section>
+  <section class="panel query-panel">
+    <label for="radius">조회 반경</label><select id="radius"><option value="1">1km</option><option value="2" selected>2km</option><option value="5">5km</option></select>
+    <button id="check" type="button" class="primary" disabled>주변 재고 확인</button>
+    <p class="hint">선택한 위치에서 직선거리 기준이에요.</p>
+  </section>
+  <p id="status" class="status" role="status" aria-live="polite">위치와 상품을 선택하면 조회할 수 있어요.</p>
+  <section id="results" class="results" aria-labelledby="results-title">
+    <div class="result-heading"><h2 id="results-title">주변 매장</h2><span id="result-count">조회 전</span></div>
+    <p id="summary" class="hint">CU에서 조회된 매장만 표시합니다.</p>
+    <div id="query-guide" class="query-guide">
+      <p>아직 재고를 조회하지 않았어요.<br>위치와 상품을 선택한 뒤 재고를 확인해 주세요.</p>
+      <button id="choose-query" type="button">위치·상품 선택으로 이동</button>
+      <p class="hint">새로고침하면 위치와 상품 선택이 초기화돼요.</p>
+    </div>
+    <div class="map-wrap">
+      <div id="map" aria-label="재고 있는 CU 매장 지도"></div><p id="map-message">카카오지도를 준비하고 있어요.</p>
+      <section id="map-detail" class="map-detail" aria-label="선택한 지도 매장" aria-live="polite" hidden>
+        <div class="map-detail-heading"><h3 id="map-detail-name"></h3><button id="map-detail-close" type="button" aria-label="매장 정보 닫기">×</button></div>
+        <p id="map-detail-address"></p><p id="map-detail-meta" class="hint"></p>
+        <div class="map-detail-actions"><button id="map-detail-list" type="button">목록에서 보기</button><a id="map-detail-route" target="_blank" rel="noopener noreferrer">카카오맵 길찾기 ↗</a></div>
+      </section>
+    </div>
+    <p class="hint">보라색 핀의 숫자는 재고 수량이에요. 누르면 매장 정보를 볼 수 있어요.</p>
+    <div class="list-heading"><h3>가까운 순으로 보기</h3><label><input id="show-all" type="checkbox"> 품절·미확인도 보기</label></div>
+    <div id="stores"><p class="empty">검색한 상품의 재고 있는 매장이 여기에 나와요.</p></div>
+  </section>
+  <footer><p>CU 공식 서비스가 아닌 시험용 웹입니다.<br>재고는 조회 이후 바뀔 수 있어요.<br>방문 전 매장에 확인해 주세요.</p>
+    <details><summary>조회 범위·개인정보 안내</summary><p>CU가 반환한 매장만 조회합니다. 결과가 없어도 주변 전체 또는 전국 품절을 뜻하지 않습니다.</p><p>위치는 지속 추적하거나 파일·DB에 저장하지 않습니다. 재고 조회를 위해 좌표를 CU에 전달하며, 서버 메모리의 조회용 좌표는 최대 약 31초 후 삭제됩니다.</p><p>익명 요청 제한용 쿠키를 사용합니다. 지도·장소 검색에는 카카오 서비스가 사용됩니다. 자동 반복 조회는 하지 않습니다.</p></details>
+  </footer>
+</main>
+</body></html>
