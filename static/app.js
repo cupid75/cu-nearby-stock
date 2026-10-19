@@ -5,6 +5,7 @@ let mapStarted = false;
 function showPage(focusHeading=false) {
   let results = location.hash === '#results' && !!state.product;
   if(location.hash === '#results' && !state.product) history.replaceState(null, '', '#home');
+  const enteringResults = results && state.view !== 'results';
   state.view = results ? 'results' : 'home';
   $('home-page').hidden = results; $('results-page').hidden = !results;
   document.title = results ? `${state.product.name} · CU 근처 재고` : 'CU 근처 재고 찾기';
@@ -18,6 +19,7 @@ function showPage(focusHeading=false) {
     if(results && state.map) { state.map.relayout(); if(state.result) renderMap(); }
     if(focusHeading) $(results ? 'results-page-title' : 'home-title').focus({preventScroll:true});
   });
+  if(enteringResults && state.location) checkStock();
 }
 window.addEventListener('hashchange', () => showPage(true));
 function openResults() { if(location.hash === '#results') showPage(true); else location.hash = 'results'; }
@@ -104,6 +106,7 @@ $('place-form').addEventListener('submit', event => {
       const li = el('li'), button = el('button', place.place_name); button.type = 'button';
       button.append(el('small', place.road_address_name || place.address_name));
       button.addEventListener('click', () => {
+        if(state.busy) return;
         setLocation(Number(place.y), Number(place.x), place.place_name);
         $('places').replaceChildren(); $('place-message').textContent = `${place.place_name} 선택됨`;
         $('place-input').blur();
@@ -151,7 +154,8 @@ $('choose-query').addEventListener('click', () => {
   $('location-section').scrollIntoView({behavior:'auto', block:'start'});
   $('gps').focus({preventScroll:true});
 });
-$('check').addEventListener('click', async () => {
+$('check').addEventListener('click', checkStock);
+async function checkStock() {
   if(state.busy || !state.location || !state.product) return;
   clearResult(); const revision = state.revision;
   state.busy = true; ready(); $('check').textContent = '재고 확인 중…';
@@ -168,7 +172,7 @@ $('check').addEventListener('click', async () => {
     if(revision !== state.revision) return;
     $('stores').replaceChildren(el('p', '연결 오류로 수량을 확인하지 못했어요. 품절 여부는 알 수 없습니다.', 'empty')); status(error.message, true);
   } finally { state.busy = false; $('check').textContent = '주변 재고 확인'; $('results').setAttribute('aria-busy', 'false'); ready(); }
-});
+}
 function clock(value) { return new Date(value).toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
 function renderStores() {
   if(!state.result) return;
