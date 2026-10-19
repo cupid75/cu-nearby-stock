@@ -1,6 +1,26 @@
 'use strict';
 const $ = id => document.getElementById(id);
-const state = {location: null, product: null, result: null, busy: false, map: null, mapBounds: null, overlays: [], selectedPin: null, selectedStore: null, revision: 0, placeRevision: 0};
+const state = {view: 'home', location: null, product: null, result: null, busy: false, map: null, mapBounds: null, overlays: [], selectedPin: null, selectedStore: null, revision: 0, placeRevision: 0};
+let mapStarted = false;
+function showPage(focusHeading=false) {
+  let results = location.hash === '#results' && !!state.product;
+  if(location.hash === '#results' && !state.product) history.replaceState(null, '', '#home');
+  state.view = results ? 'results' : 'home';
+  $('home-page').hidden = results; $('results-page').hidden = !results;
+  document.title = results ? `${state.product.name} · CU 근처 재고` : 'CU 근처 재고 찾기';
+  if(results) {
+    $('results-page-title').textContent = state.product.name;
+    $('query-controls').open = !state.location;
+    if(!mapStarted) { mapStarted = true; initMap(); }
+  }
+  requestAnimationFrame(() => {
+    window.scrollTo(0, 0);
+    if(results && state.map) { state.map.relayout(); if(state.result) renderMap(); }
+    if(focusHeading) $(results ? 'results-page-title' : 'home-title').focus({preventScroll:true});
+  });
+}
+window.addEventListener('hashchange', () => showPage(true));
+function openResults() { if(location.hash === '#results') showPage(true); else location.hash = 'results'; }
 const groups = {
   'quick-mat': ['트러플하몽스틱', '트러플하몽깡', '트러플하몽칩'],
   'quick-res': ['제나의딸기잼샌드', '원이의옥수수크림빵', '메이의시나몬롤', '리브의초코호떡', '미나미의메론빵']
@@ -30,7 +50,8 @@ async function api(path, body) {
 function setLocation(lat, lon, label) {
   state.location = {lat, lon}; clearResult(); $('location-label').textContent = `선택 위치: ${label}`;
   $('location-message').hidden = true;
-  status('위치를 선택했어요. 상품을 선택하고 재고를 확인해 주세요.'); ready();
+  $('query-location').textContent = label; $('query-controls').open = false;
+  status('주변 재고 확인 버튼을 눌러 주세요.'); ready();
   if(state.map) state.map.setCenter(new kakao.maps.LatLng(lat, lon));
 }
 $('gps').addEventListener('click', () => {
@@ -54,7 +75,7 @@ function resetGpsButton() {
   $('gps').setAttribute('aria-busy', 'false');
 }
 function gpsFail(error) {
-  resetGpsButton(); $('location-details').open = true;
+  resetGpsButton(); $('query-controls').open = true; $('location-details').open = true;
   const reasons = {
     1: '브라우저 또는 기기에서 위치 사용을 허용하지 않았어요. 위치 권한을 확인하거나 동네·역으로 검색해 주세요.',
     2: '기기에서 현재 위치를 알아내지 못했어요. 기기의 위치 기능을 확인하거나 동네·역으로 검색해 주세요.',
@@ -101,6 +122,7 @@ async function searchProducts(word) {
   $('products').setAttribute('aria-busy', 'true');
   state.busy = true; state.product = null; clearResult(); ready(); $('selection').hidden = true;
   $('products').replaceChildren(); $('product-message').textContent = '상품을 검색하고 있어요…'; status('CU 상품 목록을 확인하고 있어요…');
+  $('product-message').classList.remove('error');
   try {
     const data = await api('/api/products', {keyword:word});
     $('product-message').textContent = data.products.length ? `검색 결과 ${data.products.length}개 · 상품 하나를 선택해 주세요.${Number(data.total) > data.products.length ? ' 일부 결과만 표시됩니다. 상품명을 더 구체적으로 입력할 수 있어요.' : ''}` : '상품이 검색되지 않았어요. 다른 이름으로 검색해 주세요.';
@@ -108,18 +130,20 @@ async function searchProducts(word) {
       const li = el('li'), button = el('button', product.name); button.type = 'button'; button.setAttribute('aria-pressed','false');
       const price = Number(product.price); if(Number.isFinite(price) && price > 0) button.append(el('small', `${price.toLocaleString('ko-KR')}원`));
       button.addEventListener('click', () => {
-        state.product = product; clearResult();
+        const changed = !state.product || state.product.item_code !== product.item_code || state.product.on_item_no !== product.on_item_no;
+        state.product = product; if(changed) clearResult();
         $('products').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
         $('selection').textContent = `선택 상품: ${product.name}`; $('selection').hidden = false;
-        status(state.location ? '주변 재고 확인 버튼을 눌러 주세요.' : '조회할 위치를 먼저 선택해 주세요.'); ready();
+        status(state.result ? '이전에 조회한 결과예요. 최신 재고는 주변 재고 확인을 눌러 주세요.' : state.location ? '주변 재고 확인 버튼을 눌러 주세요.' : '조회할 위치를 먼저 선택해 주세요.'); ready(); openResults();
       }); li.append(button); $('products').append(li);
     }); status(data.products.length ? '검색 결과에서 상품 하나를 선택해 주세요.' : '검색 결과가 없어요. 다른 상품명을 입력해 주세요.');
-  } catch(error) { $('product-message').textContent = '상품 검색 실패'; status(error.message, true); }
+  } catch(error) { $('product-message').textContent = error.message; $('product-message').classList.add('error'); status(error.message, true); }
   finally { state.busy = false; $('products').setAttribute('aria-busy', 'false'); ready(); }
 }
 $('radius').addEventListener('change', clearResult);
 $('show-all').addEventListener('change', renderStores);
 $('choose-query').addEventListener('click', () => {
+  $('query-controls').open = true;
   $('location-section').scrollIntoView({behavior:'auto', block:'start'});
   $('gps').focus({preventScroll:true});
 });
@@ -135,7 +159,7 @@ $('check').addEventListener('click', async () => {
     $('result-count').textContent = `재고 있음 ${data.in_stock_count}곳`;
     $('summary').textContent = `CU 조회 ${data.returned_count}곳 중 ${data.radius_km}km 안 ${data.within_radius_count}곳 · 품절 ${data.sold_out_count}곳 · 수량 미확인 ${data.unknown_count}곳${data.missing_coordinates ? ` · 좌표 미확인 ${data.missing_coordinates}곳 제외` : ''} · ${clock(data.checked_at)} 조회${data.cached ? ' (30초 캐시)' : ''}`;
     status(data.in_stock_count ? '재고 있는 매장을 가까운 순으로 표시했어요.' : '조회된 범위에서 재고 있는 매장을 찾지 못했어요. 주변 전체나 전국 품절을 뜻하지 않습니다.');
-    $('results').scrollIntoView({behavior:'auto', block:'start'});
+    if(state.view === 'results') $('results').scrollIntoView({behavior:'auto', block:'start'});
   } catch(error) {
     if(revision !== state.revision) return;
     $('stores').replaceChildren(el('p', '연결 오류로 수량을 확인하지 못했어요. 품절 여부는 알 수 없습니다.', 'empty')); status(error.message, true);
@@ -181,7 +205,7 @@ function showMapDetail(store, button) {
   $('map-detail').scrollIntoView({behavior:'auto', block:'nearest'});
 }
 function renderMap() {
-  if(!state.map || !state.result) return;
+  if(!state.map || !state.result || state.view !== 'results') return;
   closeMapDetail();
   state.overlays.forEach(x => x.setMap(null)); state.overlays = [];
   const bounds = new kakao.maps.LatLngBounds();
@@ -216,10 +240,10 @@ async function initMap() {
       new ResizeObserver(() => {
         state.map.relayout();
         const width = $('map').clientWidth;
-        if(width !== previousWidth && state.mapBounds) state.map.setBounds(state.mapBounds, 45, 40, 45, 40);
+        if(width > 0 && width !== previousWidth && state.mapBounds) state.map.setBounds(state.mapBounds, 45, 40, 45, 40);
         previousWidth = width;
       }).observe($('map'));
     });
   } catch(error) { $('map-message').textContent = error.message; $('place-message').textContent = error.message; }
 }
-initMap();
+showPage();

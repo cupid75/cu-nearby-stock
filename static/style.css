@@ -20,6 +20,7 @@
   --radius-lg: 12px;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { margin: 0; font-size: 16px; line-height: 1.6; }
 main {
   width: 100%; max-width: 720px; margin: 0 auto;
@@ -32,6 +33,23 @@ header { min-height: 64px; display: flex; align-items: center; justify-content: 
 .intro { padding: 28px 0 32px; }
 h1 { font-size: 26px; font-weight: 600; line-height: 1.35; letter-spacing: -.4px; margin: 0 0 12px; text-wrap: balance; }
 .intro p { margin: 0; font-size: 15px; color: var(--color-text-secondary); word-break: keep-all; }
+.product-panel { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+.results-nav { padding: 12px 0; }
+.back-home { display: inline-flex; min-height: 44px; align-items: center; font-size: 14px; font-weight: 500; text-decoration: none; }
+.results-intro { margin-bottom: 16px; }
+.results-intro .hint { margin: 0 0 6px; }
+.results-intro h1 { font-size: 22px; margin: 0; overflow-wrap: anywhere; }
+.location-controls { border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0 12px; margin-bottom: 12px; }
+.location-controls > summary { font-size: 14px; }
+#query-location { margin-left: auto; font-size: 13px; color: var(--color-text-secondary); text-align: right; overflow-wrap: anywhere; }
+.location-controls #location-section { padding: 8px 0 16px; }
+#results-page .query-panel { grid-template-columns: 88px 1fr; gap: 8px; margin: 0; }
+#results-page .query-panel #check { grid-column: 2; min-height: 48px; }
+#results-page .status { margin: 12px 0 20px; padding: 10px 12px; }
+#query-guide { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+#query-guide button { min-height: 44px; padding: 8px 12px; font-size: 13px; white-space: nowrap; }
+.bottom-home { display: flex; justify-content: center; border: 1px solid var(--color-border); border-radius: var(--radius-md); margin-top: 20px; }
+#product-message.error { color: var(--color-error); }
 h2 { font-size: 18px; font-weight: 600; letter-spacing: -.4px; line-height: 1.5; margin: 0 0 20px; }
 h3 { font-size: 16px; font-weight: 600; margin: 0; }
 p { margin: 0; overflow-wrap: anywhere; }
