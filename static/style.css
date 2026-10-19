@@ -33,7 +33,7 @@ header { min-height: 64px; display: flex; align-items: center; justify-content: 
 .intro { padding: 28px 0 32px; }
 h1 { font-size: 26px; font-weight: 600; line-height: 1.35; letter-spacing: -.4px; margin: 0 0 12px; text-wrap: balance; }
 .intro p { margin: 0; font-size: 15px; color: var(--color-text-secondary); word-break: keep-all; }
-.product-panel { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+.panel.product-panel { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
 .results-nav { padding: 12px 0; }
 .back-home { display: inline-flex; min-height: 44px; align-items: center; font-size: 14px; font-weight: 500; text-decoration: none; }
 .results-intro { margin-bottom: 16px; }
