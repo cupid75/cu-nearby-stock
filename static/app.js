@@ -112,7 +112,7 @@ $('place-form').addEventListener('submit', event => {
   });
 });
 for(const [id, words] of Object.entries(groups)) words.forEach(word => {
-  const button = el('button', word); button.type = 'button';
+  const button = el('button'); button.type = 'button'; button.append(el('span', word));
   button.addEventListener('click', () => { $('product-input').value = word; searchProducts(word); }); $(id).append(button);
 });
 $('product-form').addEventListener('submit', event => {event.preventDefault(); searchProducts($('product-input').value.trim());});

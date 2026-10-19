@@ -28,7 +28,8 @@ main {
 }
 header { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--color-border-light); }
 .brand { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 600; letter-spacing: -.4px; color: var(--color-primary); }
-.brand span { font-size: 15px; font-weight: 500; letter-spacing: 0; color: var(--color-text-primary); }
+.brand span { font-size: 15px; font-weight: 500; letter-spacing: 0; color: var(--color-text-primary); white-space: nowrap; }
+.brand-logo { display: block; width: 120px; height: 24px; object-fit: contain; flex-shrink: 0; }
 .beta { font-size: 12px; color: var(--color-text-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 2px 8px; white-space: nowrap; }
 .intro { padding: 28px 0 32px; }
 h1 { font-size: 26px; font-weight: 600; line-height: 1.35; letter-spacing: -.4px; margin: 0 0 12px; text-wrap: balance; }
@@ -83,10 +84,13 @@ details[open] > summary::after { content: "−"; }
 #location-details .search-row { margin-top: 8px; }
 .hint { font-size: 13px; line-height: 1.7; color: var(--color-text-secondary); margin: 12px 0 0; }
 .quick-group { margin-top: 24px; }
-.quick-group > p { margin-bottom: 12px; font-size: 15px; font-weight: 600; }
+.quick-group > p { margin-bottom: 6px; font-size: 15px; font-weight: 600; }
 .quick-group > p span { margin-left: 8px; color: var(--color-text-secondary); font-size: 13px; font-weight: 400; }
-.chips { display: grid; grid-template-columns: 1fr; gap: 8px; }
-.chips button { text-align: left; font-size: 14px; padding: 11px 12px; word-break: keep-all; overflow-wrap: anywhere; }
+.chips { display: flex; flex-wrap: wrap; gap: 0 6px; }
+.chips button { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; padding: 0; border: 0; border-radius: 999px; background: transparent; font-size: 13px; font-weight: 400; text-align: left; }
+.chips button span { display: block; padding: 7px 11px; border-radius: 999px; background: #f2e9fa; color: var(--color-primary); line-height: 18px; word-break: keep-all; overflow-wrap: anywhere; }
+.chips button:disabled { background: transparent; }
+.chips button:disabled span { background: #f5f5f5; color: #777; }
 .choices { list-style: none; display: grid; gap: 0; margin: 16px 0 0; padding: 0; }
 .choices:empty { display: none; }
 .choices li + li { border-top: 1px solid var(--color-border-light); }
@@ -148,17 +152,21 @@ footer details p { margin: 0 0 12px; }
 .map-detail-actions a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; }
 .store.is-selected { border-color: var(--color-primary); background: #faf7fc; }
 .center-pin { padding: 8px 12px; background: #fff; color: var(--color-primary); font-size: 14px; font-weight: 500; border: 2px solid var(--color-primary); border-radius: var(--radius-md); }
-@media (min-width: 360px) { .chips { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 359px) {
+  .brand-logo { width: 100px; height: 20px; }
+  .brand span { font-size: 14px; }
+}
 @media (min-width: 768px) {
   main { padding-left: 24px; padding-right: 24px; }
   .intro { padding: 40px 0; }
   h1 { font-size: 28px; }
   .mobile-break { display: none; }
-  .chips { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   #map { height: 360px; }
 }
 @media (hover: hover) {
   button:hover:not(:disabled) { background: #fafafa; border-color: #999; }
+  .chips button:hover:not(:disabled) { background: transparent; }
+  .chips button:hover:not(:disabled) span { background: #e8d9f4; }
   .primary:hover:not(:disabled) { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
   #gps:hover:not(:disabled) { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
   .pin:hover:not(:disabled) { background: transparent; border-color: transparent; }
