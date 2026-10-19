@@ -16,8 +16,10 @@
       <form id="product-form" class="search-row"><input id="product-input" placeholder="찾고 싶은 상품명을 입력하세요" maxlength="60" required enterkeyhint="search"><button type="submit" class="primary">검색</button></form>
       <div class="quick-group"><p>맛피아 <span>빠른 검색</span></p><div id="quick-mat" class="chips"></div></div>
       <div class="quick-group"><p>리센느 <span>빠른 검색</span></p><div id="quick-res" class="chips"></div></div>
+      <h2 id="product-choice-title" class="product-choice-title" hidden>재고를 확인할 상품을 눌러 주세요</h2>
       <p id="product-message" class="hint" role="status">검색 결과에서 정확한 상품 하나를 선택해 주세요.</p>
-      <ul id="products" class="choices"></ul>
+      <ul id="products" class="choices" aria-labelledby="product-choice-title"></ul>
+      <p id="product-tip" class="hint" hidden>일부 결과만 표시됩니다. 상품명을 더 구체적으로 입력할 수 있어요.</p>
     </section>
   </div>
   <div id="results-page" hidden>

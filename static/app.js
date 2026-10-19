@@ -123,16 +123,20 @@ async function searchProducts(word) {
   state.busy = true; state.product = null; clearResult(); ready(); $('selection').hidden = true;
   $('products').replaceChildren(); $('product-message').textContent = '상품을 검색하고 있어요…'; status('CU 상품 목록을 확인하고 있어요…');
   $('product-message').classList.remove('error');
+  $('product-choice-title').hidden = true; $('product-tip').hidden = true;
   try {
     const data = await api('/api/products', {keyword:word});
-    $('product-message').textContent = data.products.length ? `검색 결과 ${data.products.length}개 · 상품 하나를 선택해 주세요.${Number(data.total) > data.products.length ? ' 일부 결과만 표시됩니다. 상품명을 더 구체적으로 입력할 수 있어요.' : ''}` : '상품이 검색되지 않았어요. 다른 이름으로 검색해 주세요.';
+    $('product-choice-title').hidden = !data.products.length;
+    $('product-tip').hidden = !data.products.length || Number(data.total) <= data.products.length;
+    $('product-message').textContent = data.products.length ? `검색된 상품 ${data.products.length}개` : '상품이 검색되지 않았어요. 다른 이름으로 검색해 주세요.';
     data.products.forEach(product => {
-      const li = el('li'), button = el('button', product.name); button.type = 'button'; button.setAttribute('aria-pressed','false');
-      const price = Number(product.price); if(Number.isFinite(price) && price > 0) button.append(el('small', `${price.toLocaleString('ko-KR')}원`));
+      const li = el('li'), button = el('button'); button.type = 'button';
+      const info = el('span', null, 'product-info'); info.append(el('span', product.name, 'product-name'));
+      const price = Number(product.price); if(Number.isFinite(price) && price > 0) info.append(el('small', `${price.toLocaleString('ko-KR')}원`));
+      button.append(info, el('span', '재고 보기 →', 'product-action'));
       button.addEventListener('click', () => {
         const changed = !state.product || state.product.item_code !== product.item_code || state.product.on_item_no !== product.on_item_no;
         state.product = product; if(changed) clearResult();
-        $('products').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
         $('selection').textContent = `선택 상품: ${product.name}`; $('selection').hidden = false;
         status(state.result ? '이전에 조회한 결과예요. 최신 재고는 주변 재고 확인을 눌러 주세요.' : state.location ? '주변 재고 확인 버튼을 눌러 주세요.' : '조회할 위치를 먼저 선택해 주세요.'); ready(); openResults();
       }); li.append(button); $('products').append(li);
