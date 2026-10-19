@@ -156,7 +156,7 @@ footer details p { margin: 0 0 12px; }
 .map-detail-actions button { min-height: 44px; font-size: 14px; }
 .map-detail-actions a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; }
 .store.is-selected { border-color: var(--color-primary); background: #faf7fc; }
-.center-pin { padding: 8px 12px; background: #fff; color: var(--color-primary); font-size: 14px; font-weight: 500; border: 2px solid var(--color-primary); border-radius: var(--radius-md); }
+.center-pin { width: 14px; height: 14px; background: #e53935; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 4px #e5393526, 0 1px 4px #0003; pointer-events: none; }
 @media (max-width: 359px) {
   .brand-logo { width: 100px; height: 20px; }
   .brand span { font-size: 14px; }

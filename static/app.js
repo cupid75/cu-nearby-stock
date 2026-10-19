@@ -218,7 +218,8 @@ function renderMap() {
   state.overlays.forEach(x => x.setMap(null)); state.overlays = [];
   const bounds = new kakao.maps.LatLngBounds();
   const center = new kakao.maps.LatLng(state.location.lat, state.location.lon); bounds.extend(center);
-  const centerOverlay = new kakao.maps.CustomOverlay({map:state.map, position:center, content:el('div', '선택 위치', 'center-pin'), yAnchor:1}); state.overlays.push(centerOverlay);
+  const centerDot = el('div', null, 'center-pin'); centerDot.setAttribute('role', 'img'); centerDot.setAttribute('aria-label', '선택한 조회 위치');
+  const centerOverlay = new kakao.maps.CustomOverlay({map:state.map, position:center, content:centerDot, xAnchor:.5, yAnchor:.5, zIndex:1}); state.overlays.push(centerOverlay);
   state.result.stores.filter(s => s.status === 'in_stock').forEach(store => {
     const position = new kakao.maps.LatLng(store.lat, store.lon), button = el('button', null, 'pin'); button.type = 'button';
     button.setAttribute('aria-label', `${store.name} 재고 ${store.quantity}개`);
