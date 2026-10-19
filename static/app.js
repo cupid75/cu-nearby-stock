@@ -116,11 +116,19 @@ $('place-form').addEventListener('submit', event => {
 });
 for(const [id, words] of Object.entries(groups)) words.forEach(word => {
   const button = el('button'); button.type = 'button'; button.append(el('span', word));
-  button.addEventListener('click', () => { $('product-input').value = word; searchProducts(word); }); $(id).append(button);
+  button.addEventListener('click', () => { $('product-input').value = word; searchProducts(word, true); }); $(id).append(button);
 });
 $('product-form').addEventListener('submit', event => {event.preventDefault(); searchProducts($('product-input').value.trim());});
-async function searchProducts(word) {
+function selectProduct(product) {
+  if(state.busy) return;
+  const changed = !state.product || state.product.item_code !== product.item_code || state.product.on_item_no !== product.on_item_no;
+  state.product = product; if(changed) clearResult();
+  $('selection').textContent = `선택 상품: ${product.name}`; $('selection').hidden = false;
+  status(state.result ? '이전에 조회한 결과예요. 최신 재고는 주변 재고 확인을 눌러 주세요.' : state.location ? '주변 재고 확인 버튼을 눌러 주세요.' : '조회할 위치를 먼저 선택해 주세요.'); ready(); openResults();
+}
+async function searchProducts(word, quick=false) {
   if(!word || state.busy) return;
+  let quickProduct = null;
   $('product-input').blur();
   $('products').setAttribute('aria-busy', 'true');
   state.busy = true; state.product = null; clearResult(); ready(); $('selection').hidden = true;
@@ -129,6 +137,11 @@ async function searchProducts(word) {
   $('product-choice-title').hidden = true; $('product-tip').hidden = true;
   try {
     const data = await api('/api/products', {keyword:word});
+    if(quick) {
+      const normalize = name => name.replace(/\s+/g, '');
+      const matches = data.products.filter(product => normalize(product.name).endsWith(normalize(word)));
+      if(matches.length === 1) quickProduct = matches[0];
+    }
     $('product-choice-title').hidden = !data.products.length;
     $('product-tip').hidden = !data.products.length || Number(data.total) <= data.products.length;
     $('product-message').textContent = data.products.length ? `검색된 상품 ${data.products.length}개` : '상품이 검색되지 않았어요. 다른 이름으로 검색해 주세요.';
@@ -137,15 +150,11 @@ async function searchProducts(word) {
       const info = el('span', null, 'product-info'); info.append(el('span', product.name, 'product-name'));
       const price = Number(product.price); if(Number.isFinite(price) && price > 0) info.append(el('small', `${price.toLocaleString('ko-KR')}원`));
       button.append(info, el('span', '재고 보기 →', 'product-action'));
-      button.addEventListener('click', () => {
-        const changed = !state.product || state.product.item_code !== product.item_code || state.product.on_item_no !== product.on_item_no;
-        state.product = product; if(changed) clearResult();
-        $('selection').textContent = `선택 상품: ${product.name}`; $('selection').hidden = false;
-        status(state.result ? '이전에 조회한 결과예요. 최신 재고는 주변 재고 확인을 눌러 주세요.' : state.location ? '주변 재고 확인 버튼을 눌러 주세요.' : '조회할 위치를 먼저 선택해 주세요.'); ready(); openResults();
-      }); li.append(button); $('products').append(li);
+      button.addEventListener('click', () => selectProduct(product)); li.append(button); $('products').append(li);
     }); status(data.products.length ? '검색 결과에서 상품 하나를 선택해 주세요.' : '검색 결과가 없어요. 다른 상품명을 입력해 주세요.');
   } catch(error) { $('product-message').textContent = error.message; $('product-message').classList.add('error'); status(error.message, true); }
   finally { state.busy = false; $('products').setAttribute('aria-busy', 'false'); ready(); }
+  if(quickProduct) selectProduct(quickProduct);
 }
 $('radius').addEventListener('change', clearResult);
 $('show-all').addEventListener('change', renderStores);
