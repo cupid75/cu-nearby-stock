@@ -45,3 +45,57 @@
 CU 공식 서비스가 아닌 개인 프로젝트입니다. CU가 반환한 매장만 조회하며, 재고는 실시간으로 달라질 수 있습니다. 방문 전 매장에 확인해 주세요.
 
 무료 서버로 운영되어 첫 접속 시 화면이 열리기까지 시간이 걸릴 수 있습니다.
+
+## 실행 방법
+
+Python 3.14와 Git이 필요합니다. Windows PowerShell 기준입니다.
+
+```powershell
+git clone https://github.com/cupid75/cu-nearby-stock.git
+cd cu-nearby-stock
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe local_server.py
+```
+
+실행 중 카카오 **JavaScript 키** 입력 안내가 나오면 키를 입력합니다. 입력 글자는 표시되지 않으며 파일에 저장하지 않습니다. 준비가 끝나면 [로컬 사이트](http://127.0.0.1:8000)에 접속합니다. 지도·동네 검색을 사용하려면 카카오맵 사용 설정과 허용 도메인 등록도 필요합니다.
+
+키 없이 상품 검색·화면을 확인하려면 마지막 명령을 다음으로 바꿉니다. 지도와 동네 검색은 사용할 수 없습니다.
+
+```powershell
+.\.venv\Scripts\python.exe local_server.py --without-key
+```
+
+Windows 실행기는 터미널을 닫아도 서버를 유지합니다. 종료할 때는 다음 명령을 사용합니다.
+
+```powershell
+.\.venv\Scripts\python.exe local_server.py --stop
+```
+
+다른 운영체제의 실행 방법, 키 설정, 검사와 배포 방법은 [개발·실행 안내](docs/local-development.md)를 참고하세요. `.env` 파일을 자동으로 읽는 기능은 없습니다.
+
+## 파일 구성
+
+```text
+app.py                       # 웹 서버, 재고 API, 캐시·요청 제한
+cu_stock_check.py            # 서버에서도 재사용하는 CU 요청 함수
+static/                     # HTML, CSS, JavaScript, 로고
+requirements.txt            # 실행에 필요한 Python 패키지
+requirements-dev.txt        # 검사에 필요한 추가 패키지
+render.yaml                 # Render 배포 설정
+local_server.py              # Windows 실행·상태 확인·종료
+verify_live.py               # 실제 CU 연결 확인 도구
+tests/                      # 자동 검사와 가상 화면 검사 서버
+docs/                       # 실행·설계·문제 해결 설명
+.gitignore                  # 키·설치 파일·임시 파일 제외 규칙
+```
+
+## 설명 문서
+
+- [개발·실행·배포 방법](docs/local-development.md)
+- [설계 이유와 데이터 처리 방식](docs/architecture.md)
+- [해결한 문제와 개선 과정](docs/development-notes.md)
+
+## 사이트 주소
+
+[CU 근처 재고 찾기 이용하기](https://cu-nearby-stock.onrender.com/)

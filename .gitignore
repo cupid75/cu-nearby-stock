@@ -1,7 +1,45 @@
+# Python 설치 환경과 자동 생성 파일
 .venv/
+venv/
+env/
 __pycache__/
+*.py[cod]
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# 환경 설정과 개인 인증 자료 (예시 설정 파일은 허용)
 .env
-*result.json
-artifacts/
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+service-account*.json
+secrets/
+
+# 실행 로그, 재고 확인 결과, 배포 묶음, 임시 파일
 .local-run/
+artifacts/
+*result.json
+*.log
+*.tmp
+*.temp
+*.bak
+*.zip
+*.whl
+*.exe
+*.msi
+
+# 편집기와 운영체제가 만드는 파일
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
